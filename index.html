@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="LicenseAgent — AI-powered open source license recommender. Paste your code or drop your package.json and get the perfect license in seconds.">
+<meta property="og:title" content="LicenseAgent by VibeCodingChile">
+<meta property="og:description" content="AI-powered license recommender for any software project. Free, open source, no install.">
+<meta property="og:type" content="website">
+<title>LicenseAgent — VibeCodingChile</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080808;
+    --bg2: #111111;
+    --bg3: #1a1a1a;
+    --border: #2a2a2a;
+    --accent: #E63329;
+    --accent2: #ff6b64;
+    --text: #e8e8e8;
+    --muted: #666;
+    --green: #3ddc84;
+    --yellow: #f5c842;
+    --blue: #5b9cf6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky; top: 0;
+    background: rgba(8,8,8,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    display: grid; place-items: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 14px;
+    color: #fff; flex-shrink: 0;
+  }
+  .logo-text { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.05em; }
+  .logo-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .badge { margin-left: auto; background: var(--bg3); border: 1px solid var(--border); padding: 4px 10px; font-size: 10px; color: var(--muted); letter-spacing: 0.08em; }
+  .gh-link { color: var(--muted); font-size: 11px; text-decoration: none; border: 1px solid var(--border); padding: 5px 10px; transition: all 0.2s; }
+  .gh-link:hover { border-color: var(--accent); color: var(--text); }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
+
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(28px, 5vw, 48px); font-weight: 800; line-height: 1.05; margin-bottom: 8px; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 40px; }
+
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+  .tab { padding: 10px 18px; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; background: none; border: none; color: var(--muted); border-bottom: 2px solid transparent; transition: all 0.2s; letter-spacing: 0.05em; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  textarea { width: 100%; min-height: 220px; background: var(--bg2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; padding: 16px; resize: vertical; outline: none; transition: border-color 0.2s; }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); }
+
+  input[type="text"] { width: 100%; padding: 12px 16px; background: var(--bg2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; outline: none; transition: border-color 0.2s; }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder { color: var(--muted); }
+
+  .drop-zone { border: 2px dashed var(--border); padding: 48px 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: rgba(230,51,41,0.04); }
+  .drop-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+  .drop-label { font-size: 13px; color: var(--muted); }
+  .drop-files { margin-top: 12px; font-size: 11px; color: var(--green); }
+
+  .fields { display: grid; gap: 12px; margin-top: 16px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px; letter-spacing: 0.06em; }
+
+  select { width: 100%; padding: 11px 14px; background: var(--bg2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; outline: none; cursor: pointer; }
+  select:focus { border-color: var(--accent); }
+
+  .btn-analyze { width: 100%; margin-top: 20px; padding: 16px; background: var(--accent); border: none; color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.08em; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .btn-analyze:hover { background: var(--accent2); }
+  .btn-analyze:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .loading { display: none; padding: 40px; text-align: center; }
+  .loading.active { display: block; }
+  .spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-steps { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  #loading-step { color: var(--accent); }
+
+  #results { display: none; margin-top: 40px; }
+  #results.active { display: block; }
+
+  .result-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .result-badge { background: var(--accent); padding: 4px 12px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; }
+  .result-name { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; }
+  .result-tagline { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .sections { display: grid; gap: 16px; }
+  .section { background: var(--bg2); border: 1px solid var(--border); padding: 20px; }
+  .section-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 14px; text-transform: uppercase; }
+  .section-content { font-size: 13px; line-height: 1.7; }
+
+  .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .score-item { background: var(--bg3); border: 1px solid var(--border); padding: 12px; text-align: center; }
+  .score-label { font-size: 10px; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.06em; }
+  .score-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; }
+  .score-val.high { color: var(--green); }
+  .score-val.med { color: var(--yellow); }
+  .score-val.low { color: var(--accent); }
+
+  .compat-list { display: grid; gap: 8px; }
+  .compat-item { display: flex; align-items: center; gap: 10px; font-size: 12px; padding: 8px 12px; background: var(--bg3); border-left: 3px solid transparent; }
+  .compat-item.ok { border-color: var(--green); }
+  .compat-item.warn { border-color: var(--yellow); }
+  .compat-item.bad { border-color: var(--accent); }
+  .compat-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .ok .compat-dot { background: var(--green); }
+  .warn .compat-dot { background: var(--yellow); }
+  .bad .compat-dot { background: var(--accent); }
+  .compat-name { font-weight: 500; min-width: 120px; }
+  .compat-status { color: var(--muted); font-size: 11px; }
+
+  .license-box { background: var(--bg); border: 1px solid var(--border); padding: 20px; font-size: 11px; line-height: 1.8; max-height: 320px; overflow-y: auto; white-space: pre-wrap; color: #aaa; }
+  .license-box::-webkit-scrollbar { width: 4px; }
+  .license-box::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn { padding: 9px 16px; font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--text); transition: all 0.2s; letter-spacing: 0.04em; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+
+  .alt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .alt-item { background: var(--bg3); border: 1px solid var(--border); padding: 14px; cursor: pointer; transition: all 0.2s; }
+  .alt-item:hover { border-color: var(--blue); }
+  .alt-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .alt-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  .btn-reset { margin-top: 32px; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #000; padding: 10px 18px; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; transform: translateY(60px); opacity: 0; transition: all 0.3s; z-index: 999; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  footer { border-top: 1px solid var(--border); padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; margin-top: 60px; }
+  .footer-left { font-size: 11px; color: var(--muted); }
+  .footer-right { font-size: 11px; color: var(--muted); }
+  .footer-right a { color: var(--muted); text-decoration: none; }
+  .footer-right a:hover { color: var(--accent); }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  @media (max-width: 600px) {
+    .field-row { grid-template-columns: 1fr; }
+    header { padding: 14px 16px; }
+    .container { padding: 24px 16px; }
+    footer { flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">VBC</div>
+  <div>
+    <div class="logo-text">LicenseAgent</div>
+    <div class="logo-sub">VibeCodingChile SpA — Análisis de Licencias por IA</div>
+  </div>
+  <a href="https://github.com/vibecodingchile/license-agent" class="gh-link" target="_blank">★ GitHub</a>
+  <div class="badge">POWERED BY CLAUDE</div>
+</header>
+
+<div class="container">
+  <h1>Encuentra la<br><span>licencia ideal</span><br>para tu proyecto</h1>
+  <p class="subtitle">Analiza tu código, detecta dependencias y genera el archivo LICENSE correcto — automáticamente.</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('code')">// Código</button>
+    <button class="tab" onclick="switchTab('files')">Archivos</button>
+    <button class="tab" onclick="switchTab('url')">GitHub URL</button>
+  </div>
+
+  <div id="tab-code" class="panel active">
+    <textarea id="code-input" placeholder="Pega aquí tu código fuente, package.json, requirements.txt, go.mod, Cargo.toml, README, o cualquier archivo relevante del proyecto...&#10;&#10;El agente analizará: lenguaje, frameworks, dependencias, propósito del proyecto y te recomendará la licencia más adecuada."></textarea>
+  </div>
+
+  <div id="tab-files" class="panel">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div class="drop-icon">↑</div>
+      <div class="drop-label">Arrastra archivos del proyecto o haz clic para seleccionar</div>
+      <div class="drop-label" style="margin-top:6px;font-size:11px;">package.json · requirements.txt · go.mod · Cargo.toml · *.py · *.js · *.ts · etc.</div>
+      <div class="drop-files" id="drop-files"></div>
+    </div>
+    <input type="file" id="file-input" multiple style="display:none" onchange="handleFiles(this.files)">
+  </div>
+
+  <div id="tab-url" class="panel">
+    <label>URL del repositorio GitHub / GitLab / Bitbucket</label>
+    <input type="text" id="url-input" placeholder="https://github.com/usuario/repositorio">
+    <p style="font-size:11px;color:var(--muted);margin-top:8px;">El agente analizará el README, package.json y estructura del repo públicamente disponible.</p>
+  </div>
+
+  <div class="fields">
+    <div class="field-row">
+      <div>
+        <label>TIPO DE PROYECTO</label>
+        <select id="proj-type">
+          <option value="">— Detectar automáticamente —</option>
+          <option value="open-source-library">Librería / Framework Open Source</option>
+          <option value="saas">SaaS / Aplicación Web</option>
+          <option value="cli-tool">Herramienta CLI</option>
+          <option value="mobile-app">App Móvil</option>
+          <option value="legaltech">LegalTech / Civic Tech</option>
+          <option value="ai-ml">IA / Machine Learning</option>
+          <option value="api-backend">API / Backend Service</option>
+          <option value="game">Videojuego</option>
+          <option value="research">Investigación / Académico</option>
+          <option value="commercial">Software Comercial Propietario</option>
+        </select>
+      </div>
+      <div>
+        <label>MODELO DE NEGOCIO</label>
+        <select id="business-model">
+          <option value="">— Detectar automáticamente —</option>
+          <option value="free-open">Gratis y Open Source</option>
+          <option value="freemium">Freemium</option>
+          <option value="commercial-closed">Comercial / Código Cerrado</option>
+          <option value="dual-license">Doble Licencia</option>
+          <option value="nonprofit">Sin fines de lucro / Público</option>
+          <option value="internal">Uso interno empresarial</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <label>NOMBRE DEL AUTOR / ORGANIZACIÓN</label>
+        <input type="text" id="author-name" placeholder="Ej: VibeCodingChile SpA">
+      </div>
+      <div>
+        <label>AÑO (vacío = año actual)</label>
+        <input type="text" id="year-input" placeholder="2025">
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-analyze" id="btn-analyze" onclick="runAgent()">
+    <span>⚡</span> ANALIZAR Y GENERAR LICENCIA
+  </button>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div style="font-size:13px;">Analizando proyecto...</div>
+    <div class="loading-steps"><span id="loading-step">Iniciando agente</span></div>
+  </div>
+
+  <div id="results">
+    <div class="result-header">
+      <div class="result-badge" id="res-spdx">MIT</div>
+      <div>
+        <div class="result-name" id="res-name">MIT License</div>
+        <div class="result-tagline" id="res-tagline">Licencia recomendada por el agente</div>
+      </div>
+    </div>
+
+    <div class="sections">
+      <div class="section">
+        <div class="section-title">Justificación del agente</div>
+        <div class="section-content" id="res-justification"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Métricas de la licencia</div>
+        <div class="score-grid" id="res-scores"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Compatibilidad con dependencias detectadas</div>
+        <div class="compat-list" id="res-compat"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Texto legal — archivo LICENSE</div>
+        <div class="license-box" id="res-license-text"></div>
+        <div class="actions">
+          <button class="btn btn-primary" onclick="copyLicense()">Copiar texto</button>
+          <button class="btn" onclick="downloadLicense()">Descargar LICENSE</button>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Alternativas consideradas</div>
+        <div class="alt-grid" id="res-alternatives"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Recomendaciones adicionales</div>
+        <div class="section-content" id="res-extra"></div>
+      </div>
+    </div>
+
+    <button class="btn btn-reset" onclick="reset()">← Analizar otro proyecto</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-left">LicenseAgent v0.1.0 · Apache 2.0 · © 2025 VibeCodingChile SpA</div>
+  <div class="footer-right">
+    <a href="https://github.com/vibecodingchile/license-agent" target="_blank">GitHub</a> ·
+    <a href="https://vibecodingchile.github.io/Vibeweb/" target="_blank">VibeCodingChile</a> ·
+    <a href="docs/LICENSES.md" target="_blank">License Reference</a>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let activeTab = 'code';
+let uploadedContent = '';
+let agentResult = null;
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['code','files','url'][i] === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function handleFiles(files) {
+  const fileList = Array.from(files);
+  uploadedContent = '';
+  const labels = [];
+  let pending = fileList.length;
+  fileList.forEach(f => {
+    labels.push(f.name);
+    const reader = new FileReader();
+    reader.onload = e => { uploadedContent += `\n\n=== ${f.name} ===\n${e.target.result}`; pending--; };
+    reader.readAsText(f);
+  });
+  document.getElementById('drop-files').textContent = '✓ ' + labels.join(', ');
+}
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+
+async function runAgent() {
+  let content = '';
+  if (activeTab === 'code') {
+    content = document.getElementById('code-input').value.trim();
+    if (!content) { showToast('Pega código o cambia de pestaña'); return; }
+  } else if (activeTab === 'files') {
+    content = uploadedContent;
+    if (!content) { showToast('Sube al menos un archivo'); return; }
+  } else {
+    const url = document.getElementById('url-input').value.trim();
+    if (!url) { showToast('Ingresa una URL válida'); return; }
+    content = `GITHUB_URL: ${url}`;
+  }
+
+  const projType = document.getElementById('proj-type').value;
+  const bizModel = document.getElementById('business-model').value;
+  const author = document.getElementById('author-name').value || 'el autor';
+  const year = document.getElementById('year-input').value || new Date().getFullYear().toString();
+
+  document.getElementById('btn-analyze').disabled = true;
+  document.getElementById('loading').classList.add('active');
+  document.getElementById('results').classList.remove('active');
+
+  const steps = ['Detectando stack tecnológico','Analizando dependencias','Evaluando modelo de negocio','Comparando licencias SPDX','Verificando compatibilidad','Generando texto legal'];
+  let si = 0;
+  const stepInterval = setInterval(() => { if (si < steps.length) document.getElementById('loading-step').textContent = steps[si++]; }, 900);
+
+  const systemPrompt = `Eres LicenseAgent, experto en licencias de software, propiedad intelectual y derecho informático chileno e internacional.
+Responde ÚNICAMENTE con un JSON válido (sin backticks, sin markdown) con esta estructura:
+{"recommended":{"spdx":"MIT","name":"MIT License","tagline":"Frase corta descriptiva"},"justification":"Párrafo detallado justificando la recomendación considerando stack, dependencias, modelo de negocio y riesgos legales.","scores":{"permisividad":95,"compatibilidad":90,"proteccion_ip":30,"adopcion_empresarial":95,"proteccion_patent":20,"adecuacion_proyecto":88},"dependencies":[{"name":"dep","license":"MIT","status":"ok","note":"Compatible"}],"license_text":"Texto legal completo con año ${year} y autor ${author} ya incorporados","alternatives":[{"spdx":"Apache-2.0","name":"Apache 2.0","reason":"Por qué es alternativa"}],"extra_recommendations":"Recomendaciones sobre headers, NOTICE, CLA, registro IP en Chile si aplica, Ley 21.719 si es LegalTech."}
+Tipo de proyecto: ${projType||'auto'}. Modelo de negocio: ${bizModel||'auto'}. Solo JSON.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 3000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: `PROYECTO:\n\n${content.substring(0,15000)}` }]
+      })
+    });
+
+    clearInterval(stepInterval);
+    const data = await resp.json();
+    const raw = data.content?.find(b => b.type === 'text')?.text || '';
+    let jsonStr = raw.trim().replace(/```json?\n?/g,'').replace(/```/g,'').trim();
+    agentResult = JSON.parse(jsonStr);
+    renderResults(agentResult);
+  } catch(err) {
+    clearInterval(stepInterval);
+    document.getElementById('loading').classList.remove('active');
+    document.getElementById('btn-analyze').disabled = false;
+    showToast('Error al analizar. Intenta de nuevo.');
+    console.error(err);
+  }
+}
+
+function renderResults(r) {
+  document.getElementById('loading').classList.remove('active');
+  document.getElementById('res-spdx').textContent = r.recommended.spdx;
+  document.getElementById('res-name').textContent = r.recommended.name;
+  document.getElementById('res-tagline').textContent = r.recommended.tagline || '';
+  document.getElementById('res-justification').textContent = r.justification;
+
+  const scoreEl = document.getElementById('res-scores');
+  scoreEl.innerHTML = '';
+  const labels = {permisividad:'Permisividad',compatibilidad:'Compatibilidad',proteccion_ip:'Protec. IP',adopcion_empresarial:'Adopción Emp.',proteccion_patent:'Patentes',adecuacion_proyecto:'Adecuación'};
+  Object.entries(r.scores||{}).forEach(([k,v]) => {
+    const cls = v>=70?'high':v>=40?'med':'low';
+    scoreEl.innerHTML += `<div class="score-item"><div class="score-label">${labels[k]||k}</div><div class="score-val ${cls}">${v}<span style="font-size:14px;opacity:0.5">/100</span></div></div>`;
+  });
+
+  const compatEl = document.getElementById('res-compat');
+  compatEl.innerHTML = !r.dependencies||!r.dependencies.length
+    ? '<div style="font-size:12px;color:var(--muted);padding:12px">No se detectaron dependencias explícitas.</div>'
+    : r.dependencies.map(d => `<div class="compat-item ${d.status}"><div class="compat-dot"></div><div class="compat-name">${d.name}</div><div style="font-size:11px;color:var(--blue);min-width:80px">${d.license}</div><div class="compat-status">${d.note}</div></div>`).join('');
+
+  document.getElementById('res-license-text').textContent = r.license_text;
+
+  document.getElementById('res-alternatives').innerHTML = (r.alternatives||[]).map(a =>
+    `<div class="alt-item"><div class="alt-name">${a.spdx}</div><div class="alt-desc" style="color:var(--muted);font-size:10px;margin-bottom:4px">${a.name}</div><div class="alt-desc">${a.reason}</div></div>`
+  ).join('');
+
+  document.getElementById('res-extra').textContent = r.extra_recommendations||'';
+  document.getElementById('results').classList.add('active');
+  document.getElementById('btn-analyze').disabled = false;
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function copyLicense() {
+  navigator.clipboard.writeText(document.getElementById('res-license-text').textContent)
+    .then(() => showToast('Texto copiado al portapapeles'));
+}
+
+function downloadLicense() {
+  const blob = new Blob([document.getElementById('res-license-text').textContent], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'LICENSE';
+  a.click();
+  showToast('Archivo LICENSE descargado');
+}
+
+function reset() {
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('code-input').value = '';
+  document.getElementById('url-input').value = '';
+  uploadedContent = '';
+  document.getElementById('drop-files').textContent = '';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>

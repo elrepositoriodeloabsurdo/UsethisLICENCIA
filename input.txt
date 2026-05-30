@@ -1,0 +1,11 @@
+# requirements.txt — Python CLI tool for data processing
+click==8.1.7
+rich==13.7.0
+pandas==2.1.3
+requests==2.31.0
+pydantic==2.5.0
+typer==0.9.0
+
+# Project description:
+# Open source command-line tool for processing and visualizing CSV datasets.
+# No commercial intent. MIT ecosystem. Target: developer community adoption.
